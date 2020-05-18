@@ -10,6 +10,8 @@ public class User {
 	protected String password;
 	protected double balance;
 	private List<Connection> contacts;
+	private List<Card> cards;
+	private List<Transaction> transactions;
 	
 	public User(String lastName, String firstName, String email, String password) {
 		this.lastName = lastName;
@@ -65,5 +67,29 @@ public class User {
 
 	public void setPassword(String password) {
 		this.password = password;
+	}
+
+	public List<Connection> getContacts() {
+		return contacts;
+	}
+
+	public void setContacts(List<Connection> contacts) {
+		this.contacts = contacts;
+	}
+
+	public List<Card> getCards() {
+		return cards;
+	}
+
+	public void setCards(List<Card> cards) {
+		this.cards = cards;
+	}
+
+	public List<Transaction> getTransactions() {
+		return transactions;
+	}
+
+	public void setTransactions(List<Transaction> transactions) {
+		this.transactions = transactions;
 	}
 }
