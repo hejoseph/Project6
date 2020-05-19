@@ -1,16 +1,38 @@
-package model;
+package com.example.project6.model;
 
 import java.util.List;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+
+@Entity
+@Table(name="Users")
 public class User {
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "Id", nullable = false, unique = true)
 	private Long id;
-	protected String lastName;
+	@Column(name="first_name")
 	protected String firstName;
+	@Column(name="last_name")
+	protected String lastName;
+	@Column(name="email")
 	protected String email;
+	@Column(name="password")
 	protected String password;
+	@Column(name="balance")
 	protected double balance;
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "from")
 	private List<Connection> contacts;
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
 	private List<Card> cards;
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
 	private List<Transaction> transactions;
 	
 	public User(String lastName, String firstName, String email, String password) {

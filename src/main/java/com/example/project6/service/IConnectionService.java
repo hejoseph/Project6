@@ -1,6 +1,6 @@
-package service;
+package com.example.project6.service;
 
-import model.User;
+import com.example.project6.model.User;
 
 public interface IConnectionService {
 

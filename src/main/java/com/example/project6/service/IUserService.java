@@ -1,7 +1,7 @@
-package service;
+package com.example.project6.service;
 
-import model.User;
-import model.UserDto;
+import com.example.project6.model.User;
+import com.example.project6.model.UserDto;
 
 public interface IUserService {
 	public boolean createUser(UserDto user);

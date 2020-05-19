@@ -1,4 +1,4 @@
-package model;
+package com.example.project6.model;
 
 public class UserDto extends User{
 

@@ -1,9 +1,31 @@
-package model;
+package com.example.project6.model;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+
+@Entity
+@Table(name="Transactions")
 public class Transaction {
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "Id", nullable = false, unique = true)
+	private Long id;
+	@Column(name = "connection")
 	private String connection;
+	@Column(name = "description")
 	private String description;
+	@Column(name = "amount")
 	private String amount;
+	@Column(name = "connection")
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name="user_id")
 	private User user;
 	
 	public Transaction(String connection, String description, String amount, User user) {

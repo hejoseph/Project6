@@ -1,4 +1,4 @@
-package service;
+package com.example.project6.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -12,17 +12,16 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import dao.ICardDAO;
-import dao.IConnectionDAO;
-import dao.IUserDAO;
-import model.Card;
-import model.Connection;
-import model.Transaction;
-import model.User;
-import model.UserDto;
-import util.Constant;
+import com.example.project6.dao.ICardDAO;
+import com.example.project6.dao.IConnectionDAO;
+import com.example.project6.dao.IUserDAO;
+import com.example.project6.model.Card;
+import com.example.project6.model.Connection;
+import com.example.project6.model.Transaction;
+import com.example.project6.model.User;
+import com.example.project6.model.UserDto;
+import com.example.project6.util.Constant;
 
-@SpringBootTest
 public class UserServiceTest {
 
 	@Autowired

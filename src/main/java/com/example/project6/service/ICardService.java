@@ -1,9 +1,9 @@
-package service;
+package com.example.project6.service;
 
 import java.util.List;
 
-import model.Card;
-import model.User;
+import com.example.project6.model.Card;
+import com.example.project6.model.User;
 
 public interface ICardService {
 
