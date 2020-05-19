@@ -1,1 +1,1 @@
-![Alt text](uml.PNG)
+![](uml.png)
