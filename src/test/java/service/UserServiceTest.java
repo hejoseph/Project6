@@ -20,6 +20,7 @@ import model.Connection;
 import model.Transaction;
 import model.User;
 import model.UserDto;
+import util.Constant;
 
 @SpringBootTest
 public class UserServiceTest {
@@ -43,9 +44,15 @@ public class UserServiceTest {
 	private ICardDAO cardDAO;
 	
 	private User userConnected;
+	private User adminConnected;
 	
 	@BeforeAll
 	public void init() {
+		
+		UserDto admin = new UserDto("admin", "admin", "admin@admin.com", "123");
+		userService.createUser(admin);
+		adminConnected = userService.connect(admin);
+		
 		UserDto user = new UserDto("hello", "test", "test@test.com", "123");
 		boolean created = userService.createUser(user);
 		assertTrue(created);
@@ -53,7 +60,6 @@ public class UserServiceTest {
 		UserDto user2 = new UserDto("hello", "test", "test2@test.com", "123");
 		created = userService.createUser(user2);
 		assertTrue(created);
-		
 		
 		userConnected = userService.connect(user);
 		
@@ -170,7 +176,7 @@ public class UserServiceTest {
 		double balance = userConnected.getBalance();
 		double amount = 50.0;
 		
-		boolean top = userService.topUpAccount(userConnected, amount);
+		boolean top = userService.topUpMoneyToAccount(userConnected, amount);
 		assertFalse(top);
 		
 		double newBalance = userConnected.getBalance();
@@ -185,12 +191,34 @@ public class UserServiceTest {
 		double balance = userConnected.getBalance();
 		double amount = 50.0;
 		
-		boolean top = userService.topUpAccount(userConnected, amount);
+		boolean top = userService.topUpMoneyToAccount(userConnected, amount);
 		assertTrue(top);
 		
 		double newBalance = userConnected.getBalance();
 		assertEquals(balance+amount, newBalance);
 		
+		
+		User admin = userService.findUserById(adminConnected);
+		List<Transaction> transactions = admin.getTransactions();
+		Transaction last = transactions.get(transactions.size()-1);
+		assertEquals(Constant.TOPUP+ " "+userConnected.getEmail(),last.getDescription());
+	}
+	
+	@Test
+	public void userWithDrawMoney() {
+		double balance = userConnected.getBalance();
+		double amount = 50.0;
+		
+		boolean draw = userService.withDrawMoneyFromAccount(userConnected, amount);
+		assertTrue(draw);
+		
+		double newBalance = userConnected.getBalance();
+		assertEquals(balance-amount, newBalance);
+		
+		User admin = userService.findUserById(adminConnected);
+		List<Transaction> transactions = admin.getTransactions();
+		Transaction last = transactions.get(transactions.size()-1);
+		assertEquals(Constant.WITHDRAW+ " "+userConnected.getEmail(),last.getDescription());
 	}
 	
 	@Test
@@ -271,6 +299,28 @@ public class UserServiceTest {
 		List<Transaction> transactions = userConnected.getTransactions();
 		assertEquals(1, transactions.size());
 		
+	}
+	
+	@Test
+	public void addMoneyGenerateTransaction() {
+		userService.generateTransaction(adminConnected, "connection","description", 20.0);
+		User admin = userService.findUserById(adminConnected);
+		List<Transaction> transactions = admin.getTransactions();
+		Transaction last = transactions.get(transactions.size()-1);
+		assertEquals("connection",last.getConnection());
+		assertEquals("description",last.getDescription());
+		assertEquals("+20.0€",last.getAmount());
+	}
+	
+	@Test
+	public void substractMoneyGenerateTransaction() {
+		userService.generateTransaction(adminConnected, "connection","description", -20.0);
+		User admin = userService.findUserById(adminConnected);
+		List<Transaction> transactions = admin.getTransactions();
+		Transaction last = transactions.get(transactions.size()-1);
+		assertEquals("connection",last.getConnection());
+		assertEquals("description",last.getDescription());
+		assertEquals("-20.0€",last.getAmount());
 	}
 	
 }
