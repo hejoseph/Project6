@@ -23,6 +23,15 @@ public class Connection {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name="to_user_id")
 	private User to;
+	
+	public Connection() {
+	}
+	
+	public Connection(User from, User to) {
+		this.from = from;
+		this.to = to;
+	}
+
 	public Long getId() {
 		return id;
 	}

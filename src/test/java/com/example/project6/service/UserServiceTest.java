@@ -15,7 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import com.example.project6.dao.ICardDAO;
 import com.example.project6.dao.IConnectionDAO;
 import com.example.project6.dao.IUserDAO;
-import com.example.project6.model.Card;
+import com.example.project6.model.CreditCard;
 import com.example.project6.model.Connection;
 import com.example.project6.model.Transaction;
 import com.example.project6.model.User;
@@ -142,11 +142,11 @@ public class UserServiceTest {
 	
 	@Test
 	public void userAddCreditCard() {
-		Card card = new Card("abc");
+		CreditCard card = new CreditCard("abc");
 		boolean added = cardService.addUserCard(userConnected, card);
 		assertTrue(added);
 		
-		List<Card> cards = cardService.getUserCards(userConnected);
+		List<CreditCard> cards = cardService.getUserCards(userConnected);
 		assertEquals(1,cards.size());
 		
 		int nbCards = userConnected.getCards().size();
@@ -155,7 +155,7 @@ public class UserServiceTest {
 	
 	@Test
 	public void userRemoveCreditCard() {
-		List<Card> cards = cardService.getUserCards(userConnected);
+		List<CreditCard> cards = cardService.getUserCards(userConnected);
 		int before = cards.size();
 		
 		cardService.removeCard(cards.get(0));
@@ -184,7 +184,7 @@ public class UserServiceTest {
 	
 	@Test
 	public void userTopUpAccountWithCard() {
-		Card card = new Card("abc");
+		CreditCard card = new CreditCard("abc");
 		cardService.addUserCard(userConnected, card);
 		
 		double balance = userConnected.getBalance();
@@ -225,9 +225,8 @@ public class UserServiceTest {
 		double balance = userConnected.getBalance();
 		double amount = balance + 50.0;
 		
-		List<Connection> contacts = userConnected.getContacts();
-		Connection contact = contacts.get(0);
-		User toUser = contact.getTo();
+		List<User> contacts = userConnected.getContacts();
+		User toUser = contacts.get(0);
 		boolean sent = userService.sendMoney(userConnected, toUser, amount);
 		assertFalse(sent);
 		
@@ -241,9 +240,8 @@ public class UserServiceTest {
 		double amount = 50.0;
 		
 		
-		List<Connection> contacts = userConnected.getContacts();
-		Connection contact = contacts.get(0);
-		User toUser = contact.getTo();
+		List<User> contacts = userConnected.getContacts();
+		User toUser = contacts.get(0);
 		double toUserBalance = toUser.getBalance();
 		boolean sent = userService.sendMoney(userConnected, toUser, amount);
 		assertTrue(sent);
@@ -261,9 +259,8 @@ public class UserServiceTest {
 		double balance = userConnected.getBalance();
 		double amount = -50.0;
 
-		List<Connection> contacts = userConnected.getContacts();
-		Connection contact = contacts.get(0);
-		User toUser = contact.getTo();
+		List<User> contacts = userConnected.getContacts();
+		User toUser = contacts.get(0);
 		double toUserBalance = toUser.getBalance();
 		boolean sent = userService.sendMoney(userConnected, toUser, amount);
 		assertFalse(sent);
@@ -282,9 +279,8 @@ public class UserServiceTest {
 		double amount = 50.0;
 		
 		
-		List<Connection> contacts = userConnected.getContacts();
-		Connection contact = contacts.get(0);
-		User toUser = contact.getTo();
+		List<User> contacts = userConnected.getContacts();
+		User toUser = contacts.get(0);
 		double toUserBalance = toUser.getBalance();
 		boolean sent = userService.sendMoney(userConnected, toUser, amount, "for lunch");
 		assertTrue(sent);

@@ -1,5 +1,6 @@
 package com.example.project6.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -9,6 +10,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 @Entity
@@ -28,12 +30,27 @@ public class User {
 	protected String password;
 	@Column(name="balance")
 	protected double balance;
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "from")
-	private List<Connection> contacts;
+//	@OneToMany(fetch = FetchType.LAZY, mappedBy = "from")
+//	private List<Connection> contacts = new ArrayList<>();
+	@OneToOne(fetch = FetchType.LAZY, mappedBy = "user")
+	private List<CreditCard> cards = new ArrayList<>();
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
-	private List<Card> cards;
+	private List<Transaction> transactions = new ArrayList<>();
+	
+	@OneToMany(fetch = FetchType.LAZY)
+	private List<User> contacts = new ArrayList<>();
+	
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
-	private List<Transaction> transactions;
+	private List<TopUp> topUps;
+	
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+	private List<WithDraw> withDraws; 
+	
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "sender")
+	private List<Transfer> transfers; 
+	
+	public User() {
+	}
 	
 	public User(String lastName, String firstName, String email, String password) {
 		this.lastName = lastName;
@@ -91,19 +108,19 @@ public class User {
 		this.password = password;
 	}
 
-	public List<Connection> getContacts() {
+	public List<User> getContacts() {
 		return contacts;
 	}
 
-	public void setContacts(List<Connection> contacts) {
+	public void setContacts(List<User> contacts) {
 		this.contacts = contacts;
 	}
 
-	public List<Card> getCards() {
+	public List<CreditCard> getCards() {
 		return cards;
 	}
 
-	public void setCards(List<Card> cards) {
+	public void setCards(List<CreditCard> cards) {
 		this.cards = cards;
 	}
 

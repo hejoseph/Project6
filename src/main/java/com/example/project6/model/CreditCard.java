@@ -8,24 +8,37 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 @Entity
 @Table(name="Cards")
-public class Card {
+public class CreditCard {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "Id", nullable = false, unique = true)
 	private Long id;
-	@Column(name = "cardInfo")
-	private String cardInfo;
-	@ManyToOne(fetch = FetchType.LAZY)
+	@Column(name = "number")
+	private String number;
+	@Column(name = "expirationDate")
+	private String expirationDate;
+	@Column(name = "secretCode")
+	private String secretCode;
+	
+	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name="user_id")
 	private User user;
 	
-	public Card(String cardInfo) {
-		super();
-		this.cardInfo = cardInfo;
+	public CreditCard() {
+	}
+	
+	public CreditCard(String cardInfo) {
+		this.number = cardInfo;
+	}
+
+	public CreditCard(String cardInfo, User user) {
+		this.number = cardInfo;
+		this.user = user;
 	}
 
 	public Long getId() {
@@ -34,7 +47,7 @@ public class Card {
 
 
 	public String getCardInfo() {
-		return cardInfo;
+		return number;
 	}
 
 
@@ -49,7 +62,7 @@ public class Card {
 
 
 	public void setCardInfo(String cardInfo) {
-		this.cardInfo = cardInfo;
+		this.number = cardInfo;
 	}
 
 

@@ -23,10 +23,13 @@ public class Transaction {
 	private String description;
 	@Column(name = "amount")
 	private String amount;
-	@Column(name = "connection")
+	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name="user_id")
 	private User user;
+	
+	public Transaction() {
+	}
 	
 	public Transaction(String connection, String description, String amount, User user) {
 		super();
