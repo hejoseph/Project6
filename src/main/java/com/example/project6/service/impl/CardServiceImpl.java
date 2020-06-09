@@ -1,11 +1,13 @@
 package com.example.project6.service.impl;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.project6.model.CreditCard;
 import com.example.project6.service.ICardService;
 
 @Service
+@Transactional
 public class CardServiceImpl implements ICardService{
 
 	@Override

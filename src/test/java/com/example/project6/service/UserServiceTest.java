@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
-import javax.transaction.Transactional;
+import javax.annotation.PostConstruct;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -16,23 +16,22 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.project6.dao.IBankAccountDAO;
 import com.example.project6.dao.ICreditCardDAO;
 import com.example.project6.dao.IUserDAO;
-import com.example.project6.model.BankAccount;
 import com.example.project6.model.CreditCard;
 import com.example.project6.model.TopUp;
-import com.example.project6.model.Transaction;
 import com.example.project6.model.Transfer;
 import com.example.project6.model.User;
 import com.example.project6.model.UserDto;
 import com.example.project6.model.WithDraw;
-import com.example.project6.util.Constant;
 
 @SpringBootTest
 @Transactional
-@TestInstance(Lifecycle.PER_CLASS)
+//@TestInstance(Lifecycle.PER_CLASS)
 public class UserServiceTest {
 
 	@Autowired
@@ -63,18 +62,21 @@ public class UserServiceTest {
 	
 	private User userConnected;
 	
-	@BeforeAll
+//	@BeforeAll
+//	@BeforeTestClass
+	@Rollback(false)
+	@PostConstruct
 	public void init() {
 		
 		assertNotNull(userService);
 		
 		UserDto user = new UserDto("hello", "test", "test@test.com", "123");
 		boolean created = userService.createUser(user);
-		assertTrue(created);
+//		assertTrue(created);
 		
 		UserDto user2 = new UserDto("hello", "test", "test2@test.com", "123");
 		created = userService.createUser(user2);
-		assertTrue(created);
+//		assertTrue(created);
 		
 		userConnected = userService.connect(user.getEmail(), user.getPassword());
 		
@@ -267,6 +269,7 @@ public class UserServiceTest {
 	}
 	
 	@Test
+	@Transactional
 	public void userTransferMoneyGreaterThanBalanceToContact() {
 		double balance = userConnected.getBalance();
 		double amount = balance + 50.0;
@@ -297,6 +300,19 @@ public class UserServiceTest {
 		
 		double toUserNewBalance = toUser.getBalance();
 		assertEquals(toUserBalance+amount, toUserNewBalance);
+		
+	}
+	
+	@Test
+	public void userTransferMoneyNotToContact() {
+		double balance = userConnected.getBalance();
+		double amount = 1.0;
+		
+		boolean sent = userService.sendMoney(userConnected.getEmail(), "notexistingaccount@mail.com", amount);
+		assertFalse(sent);
+		
+		double newBalance = userConnected.getBalance();
+		assertEquals(balance, newBalance);
 		
 	}
 	

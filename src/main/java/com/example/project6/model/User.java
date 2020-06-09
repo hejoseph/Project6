@@ -9,6 +9,9 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -17,7 +20,7 @@ import javax.persistence.Table;
 @Table(name="Users")
 public class User {
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "Id", nullable = false, unique = true)
 	private Long id;
 	@Column(name="first_name")
@@ -37,8 +40,22 @@ public class User {
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
 	private List<Transaction> transactions;
 	
-	@OneToMany(fetch = FetchType.LAZY)
+//	@ManyToMany(fetch = FetchType.LAZY)
+//	private List<User> contacts = new ArrayList<>();
+	
+	@ManyToMany(fetch = FetchType.LAZY)
+	@JoinTable(name="tbl_friends",
+	 joinColumns=@JoinColumn(name="personId"),
+	 inverseJoinColumns=@JoinColumn(name="friendId")
+	)
 	private List<User> contacts = new ArrayList<>();
+
+//	@ManyToMany(fetch = FetchType.LAZY)
+//	@JoinTable(name="tbl_friends",
+//	 joinColumns=@JoinColumn(name="friendId"),
+//	 inverseJoinColumns=@JoinColumn(name="personId")
+//	)
+//	private List<User> friendOf;
 	
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
 	private List<TopUp> topUps = new ArrayList<>();
@@ -108,17 +125,33 @@ public class User {
 		this.password = password;
 	}
 
+//	public List<User> getContacts() {
+//		return contacts;
+//	}
+//
+//	public void setContacts(List<User> contacts) {
+//		this.contacts = contacts;
+//	}
+	
+	public List<Transaction> getTransactions() {
+		return transactions;
+	}
+
 	public List<User> getContacts() {
 		return contacts;
 	}
 
-	public void setContacts(List<User> contacts) {
-		this.contacts = contacts;
+//	public List<User> getFriendOf() {
+//		return friendOf;
+//	}
+
+	public void setContacts(List<User> friends) {
+		this.contacts = friends;
 	}
 
-	public List<Transaction> getTransactions() {
-		return transactions;
-	}
+//	public void setFriendOf(List<User> friendOf) {
+//		this.friendOf = friendOf;
+//	}
 
 	public void setTransactions(List<Transaction> transactions) {
 		this.transactions = transactions;
