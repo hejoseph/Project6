@@ -43,7 +43,7 @@ public class User {
 //	@ManyToMany(fetch = FetchType.LAZY)
 //	private List<User> contacts = new ArrayList<>();
 	
-	@ManyToMany(fetch = FetchType.LAZY)
+	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name="tbl_friends",
 	 joinColumns=@JoinColumn(name="personId"),
 	 inverseJoinColumns=@JoinColumn(name="friendId")
