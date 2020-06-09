@@ -33,21 +33,21 @@ public class User {
 //	@OneToMany(fetch = FetchType.LAZY, mappedBy = "from")
 //	private List<Connection> contacts = new ArrayList<>();
 	@OneToOne(fetch = FetchType.LAZY, mappedBy = "user")
-	private List<CreditCard> cards = new ArrayList<>();
+	private CreditCard card;
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
-	private List<Transaction> transactions = new ArrayList<>();
+	private List<Transaction> transactions;
 	
 	@OneToMany(fetch = FetchType.LAZY)
 	private List<User> contacts = new ArrayList<>();
 	
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
-	private List<TopUp> topUps;
+	private List<TopUp> topUps = new ArrayList<>();
 	
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
-	private List<WithDraw> withDraws; 
+	private List<WithDraw> withDraws = new ArrayList<>();
 	
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "sender")
-	private List<Transfer> transfers; 
+	private List<Transfer> transfers = new ArrayList<>();
 	
 	public User() {
 	}
@@ -116,14 +116,6 @@ public class User {
 		this.contacts = contacts;
 	}
 
-	public List<CreditCard> getCards() {
-		return cards;
-	}
-
-	public void setCards(List<CreditCard> cards) {
-		this.cards = cards;
-	}
-
 	public List<Transaction> getTransactions() {
 		return transactions;
 	}
@@ -131,4 +123,37 @@ public class User {
 	public void setTransactions(List<Transaction> transactions) {
 		this.transactions = transactions;
 	}
+
+	public CreditCard getCard() {
+		return card;
+	}
+
+	public List<TopUp> getTopUps() {
+		return topUps;
+	}
+
+	public List<WithDraw> getWithDraws() {
+		return withDraws;
+	}
+
+	public List<Transfer> getTransfers() {
+		return transfers;
+	}
+
+	public void setCard(CreditCard card) {
+		this.card = card;
+	}
+
+	public void setTopUps(List<TopUp> topUps) {
+		this.topUps = topUps;
+	}
+
+	public void setWithDraws(List<WithDraw> withDraws) {
+		this.withDraws = withDraws;
+	}
+
+	public void setTransfers(List<Transfer> transfers) {
+		this.transfers = transfers;
+	}
+	
 }

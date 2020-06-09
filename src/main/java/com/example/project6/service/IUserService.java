@@ -5,13 +5,11 @@ import com.example.project6.model.UserDto;
 
 public interface IUserService {
 	public boolean createUser(UserDto user);
-	public User connect(UserDto user);
-//	public boolean addContact(User userConnected, String email);
-	public boolean topUpMoneyToAccount(User userConnected, double amount);
-	public boolean withDrawMoneyFromAccount(User userConnected, double amount);
-	public boolean sendMoney(User fromUser, User toUser, double amount);
-	public boolean sendMoney(User fromUser, User toUser, double amount, String description);
-	public User findUserById(User userConnected);
-	public boolean generateTransaction(User userConnected, String connection, String description, double amount);
-	
+	public User connect(String email, String password);
+	public boolean addContact(String connectedEmail, String email);
+	public boolean topUpMoneyToAccount(String email, double amount);
+	public boolean withDrawMoneyFromAccount(String email, double amount);
+	public boolean sendMoney(String senderEmail, String receiverEmail, double amount);
+	public boolean sendMoney(String senderEmail, String receiverEmail, double amount, String description);
+	public User findUserById(Long userId);
 }

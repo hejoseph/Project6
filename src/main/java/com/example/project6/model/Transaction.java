@@ -32,7 +32,6 @@ public class Transaction {
 	}
 	
 	public Transaction(String connection, String description, String amount, User user) {
-		super();
 		this.connection = connection;
 		this.description = description;
 		this.amount = amount;
@@ -62,5 +61,12 @@ public class Transaction {
 	public void setUser(User user) {
 		this.user = user;
 	}
-	
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
 }

@@ -3,17 +3,17 @@ package com.example.project6.model;
 import java.util.Date;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
+import javax.persistence.Table;
 
-/**
- * @author S638865
- *
- */
+@Entity
+@Table(name="Transfers")
 public class Transfer {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,17 +27,18 @@ public class Transfer {
 	private User receiver;
 	private Date date;
 	private double sum;
+	private String description;
 	private double commission;
 	
 	public Transfer() {
 	}
-
-	public Transfer(User sender, User receiver, Date date, double sum, double commission) {
-		super();
+	
+	public Transfer(User sender, User receiver, Date date, double sum, String description, double commission) {
 		this.sender = sender;
 		this.receiver = receiver;
 		this.date = date;
 		this.sum = sum;
+		this.description = description;
 		this.commission = commission;
 	}
 
@@ -87,6 +88,14 @@ public class Transfer {
 
 	public void setCommission(double commission) {
 		this.commission = commission;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 	
 }

@@ -3,54 +3,70 @@ package com.example.project6.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
+import javax.transaction.Transactional;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.example.project6.dao.ICardDAO;
-import com.example.project6.dao.IConnectionDAO;
+import com.example.project6.dao.IBankAccountDAO;
+import com.example.project6.dao.ICreditCardDAO;
 import com.example.project6.dao.IUserDAO;
+import com.example.project6.model.BankAccount;
 import com.example.project6.model.CreditCard;
-import com.example.project6.model.Connection;
+import com.example.project6.model.TopUp;
 import com.example.project6.model.Transaction;
+import com.example.project6.model.Transfer;
 import com.example.project6.model.User;
 import com.example.project6.model.UserDto;
+import com.example.project6.model.WithDraw;
 import com.example.project6.util.Constant;
 
+@SpringBootTest
+@Transactional
+@TestInstance(Lifecycle.PER_CLASS)
 public class UserServiceTest {
 
 	@Autowired
 	private IUserService userService;
-	
-	@Autowired
-	private IConnectionService connectionService;
-	
-	@Autowired
-	private ICardService cardService;
-	
 	@Autowired
 	private IUserDAO userDAO;
 	
 	@Autowired
-	private IConnectionDAO connectionDAO;
+	private ICardService cardService;
+	@Autowired
+	private ICreditCardDAO cardDAO;
 	
 	@Autowired
-	private ICardDAO cardDAO;
+	private IBankAccountService bankAccountService;
+	@Autowired
+	private IBankAccountDAO bankAccountDAO;
+	
+	
+	@Autowired
+	private ITopUpService topUpService;
+	
+	@Autowired
+	private IWithDrawService withDrawService;
+	
+	@Autowired
+	private ITransferService transferService;
+	
 	
 	private User userConnected;
-	private User adminConnected;
 	
 	@BeforeAll
 	public void init() {
 		
-		UserDto admin = new UserDto("admin", "admin", "admin@admin.com", "123");
-		userService.createUser(admin);
-		adminConnected = userService.connect(admin);
+		assertNotNull(userService);
 		
 		UserDto user = new UserDto("hello", "test", "test@test.com", "123");
 		boolean created = userService.createUser(user);
@@ -60,9 +76,9 @@ public class UserServiceTest {
 		created = userService.createUser(user2);
 		assertTrue(created);
 		
-		userConnected = userService.connect(user);
+		userConnected = userService.connect(user.getEmail(), user.getPassword());
 		
-		connectionService.addContact(userConnected, user2.getEmail());
+		userService.addContact(userConnected.getEmail(), user2.getEmail());
 		
 	}
 	
@@ -80,7 +96,7 @@ public class UserServiceTest {
 		UserDto user = new UserDto("test2", "test2", "test2@b.com", "123");
 		boolean created = userService.createUser(user);
 		assertTrue(created);
-		User connected = userService.connect(user);
+		User connected = userService.connect(user.getEmail(), user.getPassword());
 		assertNotNull(connected);
 	}
 	
@@ -89,10 +105,9 @@ public class UserServiceTest {
 		UserDto user = new UserDto("user1", "user1", "user1@b.com", "123");
 		boolean created = userService.createUser(user);
 		
-		User connected = userService.connect(user);
-		boolean added = connectionService.addContact(connected, "notexisting@mail.com");
+		User connected = userService.connect(user.getEmail(), user.getPassword());
+		boolean added = userService.addContact(connected.getEmail(), "notexisting@mail.com");
 		assertFalse(added);
-		
 	}
 	
 	@Test
@@ -103,8 +118,8 @@ public class UserServiceTest {
 		UserDto friend = new UserDto("friend1", "friend1", "friend1@b.com", "123");
 		boolean friendCreated = userService.createUser(friend);
 		
-		User connected = userService.connect(user);
-		boolean added = connectionService.addContact(connected, friend.getEmail());
+		User connected = userService.connect(user.getEmail(), user.getPassword());
+		boolean added = userService.addContact(connected.getEmail(), friend.getEmail());
 		assertTrue(added);
 		
 		
@@ -124,11 +139,11 @@ public class UserServiceTest {
 		UserDto friend = new UserDto("friend3", "friend3", "friend3@b.com", "123");
 		boolean friendCreated = userService.createUser(friend);
 		
-		User connected = userService.connect(user);
-		boolean added = connectionService.addContact(connected, friend.getEmail());
+		User connected = userService.connect(user.getEmail(), user.getPassword());
+		boolean added = userService.addContact(connected.getEmail(), friend.getEmail());
 		assertTrue(added);
 		
-		added = connectionService.addContact(connected, friend.getEmail());
+		added = userService.addContact(connected.getEmail(), friend.getEmail());
 		assertFalse(added);
 		
 		
@@ -143,29 +158,20 @@ public class UserServiceTest {
 	@Test
 	public void userAddCreditCard() {
 		CreditCard card = new CreditCard("abc");
-		boolean added = cardService.addUserCard(userConnected, card);
+		boolean added = cardService.addUserCard(userConnected.getEmail(), card);
 		assertTrue(added);
 		
-		List<CreditCard> cards = cardService.getUserCards(userConnected);
-		assertEquals(1,cards.size());
-		
-		int nbCards = userConnected.getCards().size();
-		assertEquals(1,nbCards);
+		CreditCard c = cardService.getUserCard(userConnected.getEmail());
+		assertNotNull(c);
 	}
 	
 	@Test
 	public void userRemoveCreditCard() {
-		List<CreditCard> cards = cardService.getUserCards(userConnected);
-		int before = cards.size();
-		
-		cardService.removeCard(cards.get(0));
-		
-		cards = cardService.getUserCards(userConnected);
-		int after = cards.size();
-		assertEquals(after,before-1);
-		
-		int nbCards = userConnected.getCards().size();
-		assertEquals(0,nbCards);
+		CreditCard card = cardService.getUserCard(userConnected.getEmail());
+		assertNotNull(card);
+		cardService.removeCard(card);
+		card = cardService.getUserCard(userConnected.getEmail());
+		assertNull(card);
 	}
 	
 	
@@ -175,9 +181,10 @@ public class UserServiceTest {
 		double balance = userConnected.getBalance();
 		double amount = 50.0;
 		
-		boolean top = userService.topUpMoneyToAccount(userConnected, amount);
+		boolean top = userService.topUpMoneyToAccount(userConnected.getEmail(), amount);
 		assertFalse(top);
 		
+		userService.findUserById(userConnected.getId());
 		double newBalance = userConnected.getBalance();
 		assertEquals(balance, newBalance);
 	}
@@ -185,39 +192,78 @@ public class UserServiceTest {
 	@Test
 	public void userTopUpAccountWithCard() {
 		CreditCard card = new CreditCard("abc");
-		cardService.addUserCard(userConnected, card);
+		cardService.addUserCard(userConnected.getEmail(), card);
 		
 		double balance = userConnected.getBalance();
 		double amount = 50.0;
 		
-		boolean top = userService.topUpMoneyToAccount(userConnected, amount);
+		boolean top = userService.topUpMoneyToAccount(userConnected.getEmail(), amount);
 		assertTrue(top);
 		
 		double newBalance = userConnected.getBalance();
 		assertEquals(balance+amount, newBalance);
 		
-		
-		User admin = userService.findUserById(adminConnected);
-		List<Transaction> transactions = admin.getTransactions();
-		Transaction last = transactions.get(transactions.size()-1);
-		assertEquals(Constant.TOPUP+ " "+userConnected.getEmail(),last.getDescription());
 	}
 	
 	@Test
-	public void userWithDrawMoney() {
+	public void userTopUpAccountWithCardTransactionIsCreated() {
 		double balance = userConnected.getBalance();
 		double amount = 50.0;
 		
-		boolean draw = userService.withDrawMoneyFromAccount(userConnected, amount);
-		assertTrue(draw);
+		boolean top = userService.topUpMoneyToAccount(userConnected.getEmail(), amount);
+		assertTrue(top);
 		
 		double newBalance = userConnected.getBalance();
-		assertEquals(balance-amount, newBalance);
+		assertEquals(balance+amount, newBalance);
 		
-		User admin = userService.findUserById(adminConnected);
-		List<Transaction> transactions = admin.getTransactions();
-		Transaction last = transactions.get(transactions.size()-1);
-		assertEquals(Constant.WITHDRAW+ " "+userConnected.getEmail(),last.getDescription());
+		TopUp topUp = topUpService.getLastTransaction(userConnected.getEmail());
+		assertEquals(amount, topUp.getSum());
+	}
+	
+	
+	@Test
+	public void userWithDrawMoneyWithoutBankAccount() {
+		double balance = userConnected.getBalance();
+		double amount = 50.0;
+		
+		boolean draw = userService.withDrawMoneyFromAccount(userConnected.getEmail(), amount);
+		assertFalse(draw);
+		
+		double newBalance = userConnected.getBalance();
+		assertEquals(balance, newBalance);
+		
+	}
+	
+	@Test
+	public void userWithDrawMoneyWithBankAccount() {
+		bankAccountService.addAccountForUser("","","",userConnected.getEmail());
+		
+		double balance = userConnected.getBalance();
+		double amount = 50.0;
+		
+		boolean draw = userService.withDrawMoneyFromAccount(userConnected.getEmail(), amount);
+		assertFalse(draw);
+		
+		double newBalance = userConnected.getBalance();
+		assertEquals(balance, newBalance);
+		
+	}
+	
+	@Test
+	public void userWithDrawMoneyWithBankAccountTransactionIsCreated() {
+		bankAccountService.addAccountForUser("","","",userConnected.getEmail());
+		
+		double balance = userConnected.getBalance();
+		double amount = 10.0;
+		
+		boolean draw = userService.withDrawMoneyFromAccount(userConnected.getEmail(), amount);
+		assertFalse(draw);
+		
+		double newBalance = userConnected.getBalance();
+		assertEquals(balance, newBalance);
+		
+		WithDraw wd = withDrawService.getLastTransaction(userConnected.getEmail());
+		assertEquals(amount, wd.getSum());
 	}
 	
 	@Test
@@ -227,7 +273,7 @@ public class UserServiceTest {
 		
 		List<User> contacts = userConnected.getContacts();
 		User toUser = contacts.get(0);
-		boolean sent = userService.sendMoney(userConnected, toUser, amount);
+		boolean sent = userService.sendMoney(userConnected.getEmail(), toUser.getEmail(), amount);
 		assertFalse(sent);
 		
 		double newBalance = userConnected.getBalance();
@@ -243,7 +289,7 @@ public class UserServiceTest {
 		List<User> contacts = userConnected.getContacts();
 		User toUser = contacts.get(0);
 		double toUserBalance = toUser.getBalance();
-		boolean sent = userService.sendMoney(userConnected, toUser, amount);
+		boolean sent = userService.sendMoney(userConnected.getEmail(), toUser.getEmail(), amount);
 		assertTrue(sent);
 		
 		double newBalance = userConnected.getBalance();
@@ -262,7 +308,7 @@ public class UserServiceTest {
 		List<User> contacts = userConnected.getContacts();
 		User toUser = contacts.get(0);
 		double toUserBalance = toUser.getBalance();
-		boolean sent = userService.sendMoney(userConnected, toUser, amount);
+		boolean sent = userService.sendMoney(userConnected.getEmail(), toUser.getEmail(), amount);
 		assertFalse(sent);
 		
 		double newBalance = userConnected.getBalance();
@@ -274,15 +320,14 @@ public class UserServiceTest {
 	}
 	
 	@Test
-	public void userTransferMoneyToContactCheckTransactionList() {
+	public void userTransferMoneyToContactTransactionIsCreated() {
 		double balance = userConnected.getBalance();
 		double amount = 50.0;
-		
 		
 		List<User> contacts = userConnected.getContacts();
 		User toUser = contacts.get(0);
 		double toUserBalance = toUser.getBalance();
-		boolean sent = userService.sendMoney(userConnected, toUser, amount, "for lunch");
+		boolean sent = userService.sendMoney(userConnected.getEmail(), toUser.getEmail(), amount, "for lunch");
 		assertTrue(sent);
 		
 		double newBalance = userConnected.getBalance();
@@ -291,31 +336,8 @@ public class UserServiceTest {
 		double toUserNewBalance = toUser.getBalance();
 		assertEquals(toUserBalance+amount, toUserNewBalance);
 		
-		List<Transaction> transactions = userConnected.getTransactions();
-		assertEquals(1, transactions.size());
-		
-	}
-	
-	@Test
-	public void addMoneyGenerateTransaction() {
-		userService.generateTransaction(adminConnected, "connection","description", 20.0);
-		User admin = userService.findUserById(adminConnected);
-		List<Transaction> transactions = admin.getTransactions();
-		Transaction last = transactions.get(transactions.size()-1);
-		assertEquals("connection",last.getConnection());
-		assertEquals("description",last.getDescription());
-		assertEquals("+20.0€",last.getAmount());
-	}
-	
-	@Test
-	public void substractMoneyGenerateTransaction() {
-		userService.generateTransaction(adminConnected, "connection","description", -20.0);
-		User admin = userService.findUserById(adminConnected);
-		List<Transaction> transactions = admin.getTransactions();
-		Transaction last = transactions.get(transactions.size()-1);
-		assertEquals("connection",last.getConnection());
-		assertEquals("description",last.getDescription());
-		assertEquals("-20.0€",last.getAmount());
+		Transfer transfer = transferService.getLastTransaction(userConnected.getEmail());
+		assertEquals(amount, transfer.getSum());
 	}
 	
 }
