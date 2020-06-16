@@ -10,4 +10,5 @@ import com.example.project6.model.CreditCard;
 @Transactional
 public interface ICreditCardDAO extends JpaRepository<CreditCard, Long>{
 	public CreditCard findOneById(Long id);
+//	public CreditCard find
 }

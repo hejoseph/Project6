@@ -6,4 +6,5 @@ public interface ITransferService {
 
 	Transfer getLastTransaction(String email);
 
+    void createTransaction(String senderEmail, String receiverEmail, double amount, String description);
 }

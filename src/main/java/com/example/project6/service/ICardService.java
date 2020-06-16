@@ -5,6 +5,6 @@ import com.example.project6.model.CreditCard;
 public interface ICardService {
 	boolean addUserCard(String email, CreditCard card);
 	CreditCard getUserCard(String email);
-	boolean removeCard(CreditCard card);
+	boolean removeCardFromUser(String email);
 
 }

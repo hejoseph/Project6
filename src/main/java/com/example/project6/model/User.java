@@ -37,13 +37,17 @@ public class User {
 //	private List<Connection> contacts = new ArrayList<>();
 	@OneToOne(fetch = FetchType.LAZY, mappedBy = "user")
 	private CreditCard card;
+
+	@OneToOne(fetch = FetchType.LAZY, mappedBy = "user")
+	private BankAccount bankAccount;
+
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
 	private List<Transaction> transactions;
 	
 //	@ManyToMany(fetch = FetchType.LAZY)
 //	private List<User> contacts = new ArrayList<>();
 	
-	@ManyToMany(fetch = FetchType.EAGER)
+	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name="tbl_friends",
 	 joinColumns=@JoinColumn(name="personId"),
 	 inverseJoinColumns=@JoinColumn(name="friendId")
@@ -188,5 +192,12 @@ public class User {
 	public void setTransfers(List<Transfer> transfers) {
 		this.transfers = transfers;
 	}
-	
+
+	public BankAccount getBankAccount() {
+		return bankAccount;
+	}
+
+	public void setBankAccount(BankAccount bankAccount) {
+		this.bankAccount = bankAccount;
+	}
 }

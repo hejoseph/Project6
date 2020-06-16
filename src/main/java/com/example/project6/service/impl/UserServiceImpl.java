@@ -1,5 +1,6 @@
 package com.example.project6.service.impl;
 
+import com.example.project6.util.Constant;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,8 @@ import com.example.project6.service.ITransferService;
 import com.example.project6.service.IUserService;
 import com.example.project6.service.IWithDrawService;
 import com.example.project6.util.Util;
+
+import java.util.List;
 
 @Service
 @Transactional
@@ -61,6 +64,12 @@ public class UserServiceImpl implements IUserService{
 	@Override
 	public User connect(String email, String password) {
 		User user = userDAO.findByEmail(email);
+
+		List<User> contacts = user.getContacts();
+		if (contacts != null) {
+			contacts.forEach(c->logger.info(""));
+		}
+
 		if(user.getPassword().equals(password)) {
 			return user;
 		}
@@ -75,11 +84,12 @@ public class UserServiceImpl implements IUserService{
 			return false;
 		}
 		
-		if(connected.getContacts().contains(friend)) {
+		if(connected.getContacts().contains(friend) || friend.getContacts().contains(connected)) {
 			return false;
 		}
 		
 		connected.getContacts().add(friend);
+		friend.getContacts().add(connected);
 //		userDAO.save(connected);
 		return true;
 	}
@@ -109,22 +119,20 @@ public class UserServiceImpl implements IUserService{
 		if(user==null||bankAccount==null) {
 			return false;
 		}
-		
-		if(amount<=0) {
-			logger.error("amount < 0");
+
+		double balance = user.getBalance();
+		if(amount<=0 || amount>balance) {
+			logger.error("error amount");
 			return false;
 		}
-		
-		double balance = user.getBalance();
+
 		user.setBalance(balance-amount);
-		
 		return withDrawService.createTransaction(user, bankAccount, amount);
 	}
 
 	@Override
 	public boolean sendMoney(String senderEmail, String receiverEmail, double amount) {
-		// TODO Auto-generated method stub
-		return false;
+		return sendMoney(senderEmail, receiverEmail, amount, "");
 	}
 
 	@Override
@@ -136,19 +144,31 @@ public class UserServiceImpl implements IUserService{
 			return false;
 		}
 
-		if(amount<=0) {
-			logger.error("amount<=0");
+		double balance = sender.getBalance();
+		if(amount>balance || amount <= 0){
 			return false;
 		}
-		
+
+		double commission = amount * Constant.TRANSFER_COMMISSION;
+		if(commission+amount>balance){
+			logger.info("cannot have balance < 0");
+			return false;
+		}
+		sender.setBalance(balance - (amount+commission));
+		receiver.setBalance(receiver.getBalance() + amount);
+		transferService.createTransaction(senderEmail, receiverEmail, amount, description);
 		return true;
-		
+
 	}
 
 	@Override
 	public User findUserById(Long userId) {
-		// TODO Auto-generated method stub
-		return null;
+		return userDAO.findOneById(userId);
+	}
+
+	@Override
+	public User findUserByEmail(String email) {
+		return userDAO.findByEmail(email);
 	}
 
 }
