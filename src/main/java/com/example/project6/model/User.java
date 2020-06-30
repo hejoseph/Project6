@@ -1,7 +1,10 @@
 package com.example.project6.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -18,7 +21,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name="Users")
-public class User {
+public class User implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "Id", nullable = false, unique = true)
@@ -41,14 +44,8 @@ public class User {
 	@OneToOne(fetch = FetchType.LAZY, mappedBy = "user")
 	private BankAccount bankAccount;
 
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
-	private List<Transaction> transactions;
-	
-//	@ManyToMany(fetch = FetchType.LAZY)
-//	private List<User> contacts = new ArrayList<>();
-	
 	@ManyToMany(fetch = FetchType.LAZY)
-	@JoinTable(name="tbl_friends",
+	@JoinTable(name="friends",
 	 joinColumns=@JoinColumn(name="personId"),
 	 inverseJoinColumns=@JoinColumn(name="friendId")
 	)
@@ -129,18 +126,6 @@ public class User {
 		this.password = password;
 	}
 
-//	public List<User> getContacts() {
-//		return contacts;
-//	}
-//
-//	public void setContacts(List<User> contacts) {
-//		this.contacts = contacts;
-//	}
-	
-	public List<Transaction> getTransactions() {
-		return transactions;
-	}
-
 	public List<User> getContacts() {
 		return contacts;
 	}
@@ -156,10 +141,6 @@ public class User {
 //	public void setFriendOf(List<User> friendOf) {
 //		this.friendOf = friendOf;
 //	}
-
-	public void setTransactions(List<Transaction> transactions) {
-		this.transactions = transactions;
-	}
 
 	public CreditCard getCard() {
 		return card;

@@ -13,4 +13,6 @@ public interface IUserService {
 	public boolean sendMoney(String senderEmail, String receiverEmail, double amount, String description);
 	public User findUserById(Long userId);
 	public User findUserByEmail(String email);
+
+	public UserDto findUserByEmailDto(String email);
 }

@@ -1,16 +1,25 @@
 package com.example.project6.model;
 
-import com.googlecode.jmapper.annotations.JGlobalMap;
+//import com.googlecode.jmapper.annotations.JGlobalMap;
 
-@JGlobalMap
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
+
+//@JGlobalMap
 public class UserDto {
-
 	private String firstName;
 	private String lastName;
 	private String email;
 	private String password;
 	private double balance;
-	
+	private CreditCard card;
+	private BankAccount bankAccount;
+	private List<UserDto> contacts = new ArrayList<>();
+	private List<TopUp> topUps = new ArrayList<>();
+	private List<WithDraw> withDraws = new ArrayList<>();
+	private List<Transfer> transfers = new ArrayList<>();
+
 	public UserDto() {
 	}
 	
@@ -51,6 +60,60 @@ public class UserDto {
 	public void setBalance(double balance) {
 		this.balance = balance;
 	}
-	
-	
+
+	public CreditCard getCard() {
+		return card;
+	}
+
+	public void setCard(CreditCard card) {
+		this.card = card;
+	}
+
+	public BankAccount getBankAccount() {
+		return bankAccount;
+	}
+
+	public void setBankAccount(BankAccount bankAccount) {
+		this.bankAccount = bankAccount;
+	}
+
+//	public List<User> getContacts() {
+//		return contacts;
+//	}
+//
+//	public void setContacts(List<User> contacts) {
+//		this.contacts = contacts;
+//	}
+
+	public List<UserDto> getContacts() {
+		return contacts;
+	}
+
+	public void setContacts(List<UserDto> contacts) {
+		this.contacts = contacts;
+	}
+
+	public List<TopUp> getTopUps() {
+		return topUps;
+	}
+
+	public void setTopUps(List<TopUp> topUps) {
+		this.topUps = topUps;
+	}
+
+	public List<WithDraw> getWithDraws() {
+		return withDraws;
+	}
+
+	public void setWithDraws(List<WithDraw> withDraws) {
+		this.withDraws = withDraws;
+	}
+
+	public List<Transfer> getTransfers() {
+		return transfers;
+	}
+
+	public void setTransfers(List<Transfer> transfers) {
+		this.transfers = transfers;
+	}
 }

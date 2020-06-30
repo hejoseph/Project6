@@ -1,6 +1,9 @@
 package com.example.project6.service.impl;
 
+import com.example.project6.model.*;
 import com.example.project6.util.Constant;
+import com.example.project6.util.SimpleSourceDestinationMapper;
+import org.apache.commons.lang.SerializationUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,10 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.project6.dao.IUserDAO;
-import com.example.project6.model.BankAccount;
-import com.example.project6.model.CreditCard;
-import com.example.project6.model.User;
-import com.example.project6.model.UserDto;
 import com.example.project6.service.IBankAccountService;
 import com.example.project6.service.ICardService;
 import com.example.project6.service.ITopUpService;
@@ -20,6 +19,8 @@ import com.example.project6.service.IUserService;
 import com.example.project6.service.IWithDrawService;
 import com.example.project6.util.Util;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 @Service
@@ -45,7 +46,11 @@ public class UserServiceImpl implements IUserService{
 	
 	@Autowired
 	private ITransferService transferService;
-	
+
+	@Autowired
+	private SimpleSourceDestinationMapper mapper;
+
+
 	private boolean userExists(User user) {
 		User found = userDAO.findByEmail(user.getEmail());
 		return found!=null;
@@ -53,23 +58,46 @@ public class UserServiceImpl implements IUserService{
 	
 	@Override
 	public boolean createUser(UserDto userDto) {
-		User user = Util.copyObject(userDto, User.class);
+		User user = mapper.destinationToSource(userDto);
 		if(userExists(user)) {
 			return false;
 		}
+		String encrypted = encryptPassword(user.getPassword());
+		user.setPassword(encrypted);
 		userDAO.save(user);
 		return true;
 	}
 
+	private String encryptPassword(String password) {
+		String generatedPassword = null;
+		try {
+			// Create MessageDigest instance for MD5
+			MessageDigest md = MessageDigest.getInstance("MD5");
+			//Add password bytes to digest
+			md.update(password.getBytes());
+			//Get the hash's bytes
+			byte[] bytes = md.digest();
+			//This bytes[] has bytes in decimal format;
+			//Convert it to hexadecimal format
+			StringBuilder sb = new StringBuilder();
+			for(int i=0; i< bytes.length ;i++)
+			{
+				sb.append(Integer.toString((bytes[i] & 0xff) + 0x100, 16).substring(1));
+			}
+			//Get complete hashed password in hex format
+			generatedPassword = sb.toString();
+		}
+		catch (NoSuchAlgorithmException e)
+		{
+			e.printStackTrace();
+		}
+		return generatedPassword;
+	}
+
 	@Override
 	public User connect(String email, String password) {
+		password = encryptPassword(password);
 		User user = userDAO.findByEmail(email);
-
-		List<User> contacts = user.getContacts();
-		if (contacts != null) {
-			contacts.forEach(c->logger.info(""));
-		}
-
 		if(user.getPassword().equals(password)) {
 			return user;
 		}
@@ -150,12 +178,12 @@ public class UserServiceImpl implements IUserService{
 		}
 
 		double commission = amount * Constant.TRANSFER_COMMISSION;
-		if(commission+amount>balance){
-			logger.info("cannot have balance < 0");
-			return false;
-		}
-		sender.setBalance(balance - (amount+commission));
-		receiver.setBalance(receiver.getBalance() + amount);
+//		if(commission+amount>balance){
+//			logger.info("cannot have balance < 0");
+//			return false;
+//		}
+		sender.setBalance(balance - (amount));
+		receiver.setBalance(receiver.getBalance() + amount - commission);
 		transferService.createTransaction(senderEmail, receiverEmail, amount, description);
 		return true;
 
@@ -169,6 +197,13 @@ public class UserServiceImpl implements IUserService{
 	@Override
 	public User findUserByEmail(String email) {
 		return userDAO.findByEmail(email);
+	}
+
+	public UserDto findUserByEmailDto(String email) {
+		User user = userDAO.findByEmail(email);
+		UserDto user2 = mapper.sourceToDestination(user);
+
+		return user2;
 	}
 
 }
