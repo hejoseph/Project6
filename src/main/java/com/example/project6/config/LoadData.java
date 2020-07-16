@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.example.project6.dao.IUserDAO;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -72,14 +73,15 @@ public class LoadData {
 			boolean draw = userService.withDrawMoneyFromAccount(userConnected.getEmail(), amount);
 			logger.info("user1 withdraw 10 from account");
 
-			userConnected = userService.connect(user.getEmail(), user.getPassword());
-//			UserDto dto = userService.findUserByEmailDto(user.getEmail());
+//			userConnected = userService.connect(user.getEmail(), user.getPassword());
+//			userConnected = userService.findUserByEmail(user.getEmail());
+			UserDto dto = userService.findUserByEmailDto(user.getEmail());
 			amount = 10.0;
-			List<User> contacts = userConnected.getContacts();
-			if (contacts != null) {
-				contacts.forEach(c->logger.info(""));
-			}
-			User toUser = contacts.get(0);
+			List<UserDto> contacts = dto.getContacts();
+//			if (contacts != null) {
+//				contacts.forEach(c->logger.info(""));
+//			}
+			UserDto toUser = contacts.get(0);
 			userService.sendMoney(userConnected.getEmail(), toUser.getEmail(), amount);
 			logger.info("user1 send 10 to first contact");
 

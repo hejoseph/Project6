@@ -2,12 +2,15 @@ package com.example.project6.service.impl;
 
 import com.example.project6.model.*;
 import com.example.project6.util.Constant;
+import com.example.project6.util.CycleAvoidingMappingContext;
 import com.example.project6.util.SimpleSourceDestinationMapper;
 import org.apache.commons.lang.SerializationUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.mapstruct.Context;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.project6.dao.IUserDAO;
@@ -196,12 +199,14 @@ public class UserServiceImpl implements IUserService{
 
 	@Override
 	public User findUserByEmail(String email) {
-		return userDAO.findByEmail(email);
+		User user = userDAO.findByEmail(email);
+		user.setContacts(user.getContacts());
+		return user;
 	}
 
 	public UserDto findUserByEmailDto(String email) {
 		User user = userDAO.findByEmail(email);
-		UserDto user2 = mapper.sourceToDestination(user);
+		UserDto user2 = mapper.sourceToDestination(user, new CycleAvoidingMappingContext());
 
 		return user2;
 	}
